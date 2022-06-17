@@ -73,19 +73,19 @@ public class Application {
 
   private String makeMoveAction(PlayerState me, ArenaUpdate arenaUpdate) {
       List<Integer> dims = arenaUpdate.arena.dims;
-      if("W".equalsIgnoreCase(me.direction) && me.x == 0) {
+      if("W".equalsIgnoreCase(me.direction) && me.x == 1) {
           if(me.y > dims.get(1)/2) return "R";
           else return "L";
       }
-      if("E".equalsIgnoreCase(me.direction) && me.x >= dims.get(0) -1 ) {
+      if("E".equalsIgnoreCase(me.direction) && me.x >= dims.get(0) - 2) {
           if(me.y > dims.get(1)/2) return "L";
           else return "R";
       };
-      if("N".equalsIgnoreCase(me.direction) && me.y == 0) {
+      if("N".equalsIgnoreCase(me.direction) && me.y == 1) {
           if(me.x > dims.get(0)/2) return "L";
           else return "R";
       }
-      if("S".equalsIgnoreCase(me.direction) && me.y >= dims.get(1) - 1) {
+      if("S".equalsIgnoreCase(me.direction) && me.y >= dims.get(1) - 2) {
           if(me.x > dims.get(0)/2) return "R";
           else return "L";
       }
