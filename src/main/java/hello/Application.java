@@ -78,11 +78,11 @@ public class Application {
       hitCount.incrementAndGet();
 
     if (canScore(me, arenaUpdate)) {
-      System.out.println("T");
+      //System.out.println("T");
       return "T";
     } else {
       String m = makeMoveAction(me, arenaUpdate);
-      System.out.println(m);
+      //System.out.println(m);
       return m;
     }
   }
@@ -95,7 +95,7 @@ public class Application {
     if (isValidPos(forwardPos, arenaUpdate)) {
       if (isPlaceTaken(arenaUpdate, forwardPos)) {
         // forward not blocked
-        System.out.println("Escape forward");
+        //System.out.println("Escape forward");
         return "F";
       }
     }
@@ -104,25 +104,25 @@ public class Application {
     // try left
     int[] leftPos = forwardPos(findLeftDirection(me.direction), me.x, me.y);
     if (isValidPos(leftPos, arenaUpdate)) {
-      System.out.println("Escape left");
+      //System.out.println("Escape left");
       return "L";
     }
     // try right
     String rightDirection = findRightDirection(me.direction);
     int[] rightPos = forwardPos(rightDirection, me.x, me.y);
     if (isValidPos(rightPos, arenaUpdate)) {
-      System.out.println("Escape right");
+      //System.out.println("Escape right");
       return "R";
     }
 
     // in the back?
     int[] backPos = forwardPos(findRightDirection(rightDirection), me.x, me.y);
     if (isValidPos(backPos, arenaUpdate)) {
-      System.out.println("turn R to escape to back");
+      //System.out.println("turn R to escape to back");
       return "R";
     }
 
-    System.out.println("Stucked!!");
+    //System.out.println("Stucked!!");
     // no solution
     return "T";
   }
@@ -254,13 +254,13 @@ public class Application {
     //   return "F";
     // else {
     //   if (targetInFront(findLeftDirection(me.direction), me, arenaUpdate.arena)) {
-    //     System.out.println("find target in left, turn L");
+    //     //System.out.println("find target in left, turn L");
     //     return "L";
     //   } else if (targetInFront(findRightDirection(me.direction), me, arenaUpdate.arena)) {
-    //     System.out.println("find target in right, turn R");
+    //     //System.out.println("find target in right, turn R");
     //     return "R";
     //   }
-    //   System.out.println("empty space, I'll bet");
+    //   //System.out.println("empty space, I'll bet");
     //   return new Random().nextBoolean() ? "T" : "F";
     // }
   }
@@ -274,7 +274,7 @@ public class Application {
     if(leftDistance < frontDistance && leftDistance < rightDistance) return "L";
     if(rightDistance < frontDistance && rightDistance < leftDistance) return "R";
 
-    System.out.println("empty space, I'll bet");
+    //System.out.println("empty space, I'll bet");
     return new Random().nextBoolean() ? "T" : "F";
   }
 
