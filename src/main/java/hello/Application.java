@@ -191,16 +191,31 @@ public class Application {
   private boolean targetInFront(String direction, PlayerState me, Arena arena) {
     switch (direction) {
       case "N":
-        return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && p.y < me.y);
+        return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && me.y - p.y > 0);
       case "S":
-        return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && p.y > me.y);
+        return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && p.y - me.y > 0);
       case "W":
-        return arena.state.values().parallelStream().anyMatch(p -> p.x < me.x && p.y == me.y);
+        return arena.state.values().parallelStream().anyMatch(p -> me.x - p.x > 0 && p.y == me.y);
       case "E":
-        return arena.state.values().parallelStream().anyMatch(p -> p.x > me.x && p.y == me.y);
+        return arena.state.values().parallelStream().anyMatch(p -> p.x - me.x > 0 && p.y == me.y);
     }
 
     return false;
+  }
+
+  private int targetInFrontDistance(String direction, PlayerState me, Arena arena) {
+    switch (direction) {
+      case "N":
+        return arena.state.values().parallelStream().filter(p -> p.x == me.x && me.y - p.y > 0).map(p -> me.y - p.y).sorted().findFirst().orElse(1000000);
+      case "S":
+        return arena.state.values().parallelStream().filter(p -> p.x == me.x && p.y - me.y > 0).map(p -> p.y - me.y).sorted().findFirst().orElse(1000000);
+      case "W":
+        return arena.state.values().parallelStream().filter(p -> me.x - p.x > 0 && p.y == me.y).map(p -> me.x - p.x).sorted().findFirst().orElse(1000000);
+      case "E":
+        return arena.state.values().parallelStream().filter(p -> p.x - me.x > 0 && p.y == me.y).map(p -> p.x - me.x).sorted().findFirst().orElse(1000000);
+    }
+
+    return 1000000;
   }
 
   private String makeMoveAction(PlayerState me, ArenaUpdate arenaUpdate) {
@@ -231,19 +246,36 @@ public class Application {
         return "L";
     }
 
-    if (targetInFront(me.direction, me, arenaUpdate.arena))
-      return "F";
-    else {
-      if (targetInFront(findLeftDirection(me.direction), me, arenaUpdate.arena)) {
-        System.out.println("find target in left, turn L");
-        return "L";
-      } else if (targetInFront(findRightDirection(me.direction), me, arenaUpdate.arena)) {
-        System.out.println("find target in right, turn R");
-        return "R";
-      }
-      System.out.println("empty space, I'll bet");
-      return new Random().nextBoolean() ? "T" : "F";
-    }
+    return moveByTargetDistance(me, arenaUpdate.arena);
+
+    // boolean targetInFront = targetInFront(me.direction, me, arenaUpdate.arena);
+
+    // if (targetInFront)
+    //   return "F";
+    // else {
+    //   if (targetInFront(findLeftDirection(me.direction), me, arenaUpdate.arena)) {
+    //     System.out.println("find target in left, turn L");
+    //     return "L";
+    //   } else if (targetInFront(findRightDirection(me.direction), me, arenaUpdate.arena)) {
+    //     System.out.println("find target in right, turn R");
+    //     return "R";
+    //   }
+    //   System.out.println("empty space, I'll bet");
+    //   return new Random().nextBoolean() ? "T" : "F";
+    // }
+  }
+
+  private String moveByTargetDistance(PlayerState me, Arena arena) {
+    int frontDistance = targetInFrontDistance(me.direction, me, arena);
+    int leftDistance = targetInFrontDistance(findLeftDirection(me.direction), me, arena) + 1;
+    int rightDistance = targetInFrontDistance(findLeftDirection(me.direction), me, arena) + 1;
+
+    if(frontDistance < leftDistance && frontDistance < rightDistance) return "F";
+    if(leftDistance < frontDistance && leftDistance < rightDistance) return "L";
+    if(rightDistance < frontDistance && rightDistance < leftDistance) return "R";
+
+    System.out.println("empty space, I'll bet");
+    return new Random().nextBoolean() ? "T" : "F";
   }
 
   private boolean canScore(PlayerState me, ArenaUpdate arenaUpdate) {
