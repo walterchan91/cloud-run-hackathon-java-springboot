@@ -61,6 +61,11 @@ public class Application {
   private String makeDecision(ArenaUpdate arenaUpdate) {
       PlayerState me = arenaUpdate.arena.state.remove(arenaUpdate._links.self.href);
 
+      if(me.score - lastScore >= 2) {
+        //hit by more than 2 players
+        escape(me, arenaUpdate);
+      }
+
       if(canScore(me, arenaUpdate)) {
         System.out.println("T");
           return "T";
@@ -69,6 +74,88 @@ public class Application {
           System.out.println(m);
           return m;
       }
+  }
+
+  final static int lastScore = 0;
+
+  private String escape(PlayerState me, ArenaUpdate arenaUpdate) {
+      int[] forwardPos = forwardPos(me.direction, me.x, me.y);
+
+      if(isValidPos(forwardPos, arenaUpdate)) {
+        //forward not blocked
+        if(isPlaceTaken(arenaUpdate, forwardPos)) {
+          return "F";
+        }
+      }
+
+      //can not forward
+      //try left
+      String leftDirection = turnLeft(me);
+      int[] leftPos = forwardPos(leftDirection, me.x, me.y);
+      if(isValidPos(leftPos, arenaUpdate)) {
+        return "L";
+      }
+      //try right
+      String rightDirection = turnLeft(me);
+      int[] rightPos = forwardPos(rightDirection, me.x, me.y);
+      if(isValidPos(rightPos, arenaUpdate)) {
+        return "R";
+      } 
+
+      //no solution
+      return "T";
+  }
+
+  private boolean isValidPos(int[] forwardPos, ArenaUpdate arenaUpdate) {
+    return forwardPos[0] >= 0 && forwardPos[0] <= arenaUpdate.arena.dims.get(0) - 1 && forwardPos[1] >= 0 && forwardPos[1] <= arenaUpdate.arena.dims.get(1) - 1;
+  }
+
+  private String turnLeft(PlayerState me) {
+    switch(me.direction) {
+      case "N": return "W";
+      case "S": return "E";
+      case "W": return "S";
+      case "E": return "N";
+    }
+    return me.direction;
+  }
+
+  private String turnRight(PlayerState me) {
+    switch(me.direction) {
+      case "N": return "E";
+      case "S": return "W";
+      case "W": return "N";
+      case "E": return "S";
+    }
+    return me.direction;
+  }
+
+  private int[] forwardPos(String direction, int cx, int cy) {
+    int[] forwardPos = new int[2];
+    switch(direction) {
+      case "S": 
+        forwardPos[0] = cx; 
+        forwardPos[1] = cy + 1;
+        break;
+      case "N":
+        forwardPos[0] = cx; 
+        forwardPos[1] = cy - 1;
+        break;
+      case "E":
+        forwardPos[0] = cx + 1; 
+        forwardPos[1] = cy;
+        break;
+      case "W":
+        forwardPos[0] = cx - 1; 
+        forwardPos[1] = cy;
+        break;
+    }
+
+    return forwardPos;
+  }
+
+  private boolean isPlaceTaken(ArenaUpdate arenaUpdate, int[] forwardPos) {
+    return arenaUpdate.arena.state.values().stream().noneMatch(p -> p.x == forwardPos[0] && p.y == forwardPos[1]);
   }
 
   private String makeMoveAction(PlayerState me, ArenaUpdate arenaUpdate) {
