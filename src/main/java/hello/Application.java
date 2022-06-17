@@ -6,6 +6,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
+import java.util.Random;
 import java.util.List;
 import java.util.Map;
 
@@ -158,6 +159,17 @@ public class Application {
     return arenaUpdate.arena.state.values().stream().noneMatch(p -> p.x == forwardPos[0] && p.y == forwardPos[1]);
   }
 
+  private boolean targetInFront(PlayerState me, Arena arena) {
+    switch(me.direction) {
+      case "N": return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && p.y < me.y);
+      case "S": return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && p.y > me.y);
+      case "W": return arena.state.values().parallelStream().anyMatch(p -> p.x < me.x && p.y == me.y);
+      case "E": return arena.state.values().parallelStream().anyMatch(p -> p.x > me.x && p.y == me.y);
+    }
+
+    return false;
+  }
+
   private String makeMoveAction(PlayerState me, ArenaUpdate arenaUpdate) {
       List<Integer> dims = arenaUpdate.arena.dims;
       if("W".equalsIgnoreCase(me.direction) && me.x == 1) {
@@ -177,7 +189,12 @@ public class Application {
           else return "L";
       }
 
-      return "F";
+      if(targetInFront(me, arenaUpdate.arena))
+        return "F";
+      else {
+        //no target in front turn left;
+        return "L";
+      }
   }
 
 
