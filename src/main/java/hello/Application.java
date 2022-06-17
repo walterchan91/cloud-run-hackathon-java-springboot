@@ -62,7 +62,7 @@ public class Application {
   private String makeDecision(ArenaUpdate arenaUpdate) {
       PlayerState me = arenaUpdate.arena.state.remove(arenaUpdate._links.self.href);
 
-      if(me.score - lastScore >= 2) {
+      if(me.wasHit) {
         //hit by more than 2 players
         escape(me, arenaUpdate);
       }
@@ -202,14 +202,15 @@ public class Application {
       if(targetInFront(me.direction, me, arenaUpdate.arena))
         return "F";
       else {
-        if(targetInFront(findLeftDirection(me), me, arenaUpdate.arena)) {
-          //found target in left
+        if(targetInFront(findLeftDirection(me.direction), me, arenaUpdate.arena)) {
+          System.out.println("find target in left, turn L");
           return "L";
-        } else if(targetInFront(findRightDirection(me), me, arenaUpdate.arena)){
-          //found target in right
+        } else if(targetInFront(findRightDirection(me.direction), me, arenaUpdate.arena)){
+          System.out.println("find target in right, turn R");
           return "R";
         }
-        return "F";
+        System.out.println("empty space, I'll bet");
+        return new Random().nextBoolean() ? "T" : "F";
       }
   }
 
