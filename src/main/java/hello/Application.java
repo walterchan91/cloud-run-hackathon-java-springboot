@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 @SpringBootApplication
 @RestController
@@ -55,10 +55,61 @@ public class Application {
 
   @PostMapping("/**")
   public String index(@RequestBody ArenaUpdate arenaUpdate) {
-    System.out.println(arenaUpdate);
-    String[] commands = new String[]{"F", "R", "L", "T"};
-    int i = new Random().nextInt(3);
-    return commands[i];
+      return makeDecision(arenaUpdate);
+  }
+
+  private String makeDecision(ArenaUpdate arenaUpdate) {
+      PlayerState me = arenaUpdate.arena.state.remove(arenaUpdate._links.self.href);
+
+      if(canScore(me, arenaUpdate)) {
+          return "T";
+      } else {
+          String m = makeMoveAction(me, arenaUpdate);
+          return m;
+      }
+  }
+
+  private String makeMoveAction(PlayerState me, ArenaUpdate arenaUpdate) {
+      List<Integer> dims = arenaUpdate.arena.dims;
+      if("W".equalsIgnoreCase(me.direction) && me.x == 0) {
+          if(me.y > dims.get(1)/2) return "R";
+          else return "L";
+      }
+      if("E".equalsIgnoreCase(me.direction) && me.x >= dims.get(0)) {
+          if(me.y > dims.get(1)/2) return "L";
+          else return "R";
+      };
+      if("N".equalsIgnoreCase(me.direction) && me.y == 0) {
+          if(me.x > dims.get(0)/2) return "L";
+          else return "R";
+      }
+      if("S".equalsIgnoreCase(me.direction) && me.y >= dims.get(1)) {
+          if(me.x > dims.get(0)/2) return "R";
+          else return "L";
+      }
+
+      return "F";
+  }
+
+  private boolean canScore(PlayerState me, ArenaUpdate arenaUpdate) {
+      return arenaUpdate.arena.state.entrySet().stream().anyMatch(entry -> {
+          PlayerState p = entry.getValue();
+          if(Objects.equals(p.y, me.y)) {
+             if("E".equalsIgnoreCase(me.direction) && p.x - me.x <= 3 && p.x > me.x) {
+                 return true;
+             } else if("W".equalsIgnoreCase(me.direction) && me.x - p.x <= 3 && p.x <= me.x) {
+                 return true;
+             }
+          } else if(Objects.equals(p.x, me.x)) {
+              if("S".equalsIgnoreCase(me.direction) && p.y - me.y <= 3 && p.y > me.y) {
+                  return true;
+              } else if("N".equalsIgnoreCase(me.direction) && me.y - p.y <= 3 && p.y < me.y) {
+                  return true;
+              }
+          }
+
+          return false;
+      });
   }
 
 }
