@@ -66,9 +66,9 @@ public class Application {
     PlayerState me = arenaUpdate.arena.state.remove(arenaUpdate._links.self.href);
 
     if (me.wasHit && hitCount.incrementAndGet() >= 3) {
-      escape(me, arenaUpdate);
+      return escape(me, arenaUpdate);
     } else if (me.wasHit && lastScore.get() - me.score >= 2) {
-      escape(me, arenaUpdate);
+      return escape(me, arenaUpdate);
     }
 
     lastScore.set(me.score);
