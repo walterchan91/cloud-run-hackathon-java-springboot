@@ -96,7 +96,7 @@ public class Application {
         return "L";
       }
       //try right
-      String rightDirection = turnLeft(me);
+      String rightDirection = turnRight(me);
       int[] rightPos = forwardPos(rightDirection, me.x, me.y);
       if(isValidPos(rightPos, arenaUpdate)) {
         return "R";
@@ -179,6 +179,8 @@ public class Application {
 
       return "F";
   }
+
+
 
   private boolean canScore(PlayerState me, ArenaUpdate arenaUpdate) {
       return arenaUpdate.arena.state.entrySet().stream().anyMatch(entry -> {
