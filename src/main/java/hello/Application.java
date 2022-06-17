@@ -83,26 +83,36 @@ public class Application {
       int[] forwardPos = forwardPos(me.direction, me.x, me.y);
 
       if(isValidPos(forwardPos, arenaUpdate)) {
-        //forward not blocked
         if(isPlaceTaken(arenaUpdate, forwardPos)) {
+          //forward not blocked
+          System.out.println("Escape forward");
           return "F";
         }
       }
 
       //can not forward
       //try left
-      String leftDirection = turnLeft(me);
-      int[] leftPos = forwardPos(leftDirection, me.x, me.y);
+      int[] leftPos = forwardPos(findLeftDirection(me.direction), me.x, me.y);
       if(isValidPos(leftPos, arenaUpdate)) {
+        System.out.println("Escape left");
         return "L";
       }
       //try right
-      String rightDirection = turnRight(me);
+      String rightDirection = findRightDirection(me.direction);
       int[] rightPos = forwardPos(rightDirection, me.x, me.y);
       if(isValidPos(rightPos, arenaUpdate)) {
+        System.out.println("Escape right");
         return "R";
-      } 
+      }
 
+      //in the back?
+      int[] backPos = forwardPos(findRightDirection(rightDirection), me.x, me.y);
+      if(isValidPos(backPos, arenaUpdate)) {
+        System.out.println("turn R to escape to back");
+        return "R";
+      }
+
+      System.out.println("Stucked!!");
       //no solution
       return "T";
   }
@@ -111,24 +121,24 @@ public class Application {
     return forwardPos[0] >= 0 && forwardPos[0] <= arenaUpdate.arena.dims.get(0) - 1 && forwardPos[1] >= 0 && forwardPos[1] <= arenaUpdate.arena.dims.get(1) - 1;
   }
 
-  private String turnLeft(PlayerState me) {
-    switch(me.direction) {
+  private String findLeftDirection(String direction) {
+    switch(direction) {
       case "N": return "W";
       case "S": return "E";
       case "W": return "S";
       case "E": return "N";
     }
-    return me.direction;
+    return direction;
   }
 
-  private String turnRight(PlayerState me) {
-    switch(me.direction) {
+  private String findRightDirection(String direction) {
+    switch(direction) {
       case "N": return "E";
       case "S": return "W";
       case "W": return "N";
       case "E": return "S";
     }
-    return me.direction;
+    return direction;
   }
 
   private int[] forwardPos(String direction, int cx, int cy) {
@@ -159,8 +169,8 @@ public class Application {
     return arenaUpdate.arena.state.values().stream().noneMatch(p -> p.x == forwardPos[0] && p.y == forwardPos[1]);
   }
 
-  private boolean targetInFront(PlayerState me, Arena arena) {
-    switch(me.direction) {
+  private boolean targetInFront(String direction, PlayerState me, Arena arena) {
+    switch(direction) {
       case "N": return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && p.y < me.y);
       case "S": return arena.state.values().parallelStream().anyMatch(p -> p.x == me.x && p.y > me.y);
       case "W": return arena.state.values().parallelStream().anyMatch(p -> p.x < me.x && p.y == me.y);
@@ -189,15 +199,19 @@ public class Application {
           else return "L";
       }
 
-      if(targetInFront(me, arenaUpdate.arena))
+      if(targetInFront(me.direction, me, arenaUpdate.arena))
         return "F";
       else {
-        //no target in front turn left;
-        return "L";
+        if(targetInFront(findLeftDirection(me), me, arenaUpdate.arena)) {
+          //found target in left
+          return "L";
+        } else if(targetInFront(findRightDirection(me), me, arenaUpdate.arena)){
+          //found target in right
+          return "R";
+        }
+        return "F";
       }
   }
-
-
 
   private boolean canScore(PlayerState me, ArenaUpdate arenaUpdate) {
       return arenaUpdate.arena.state.entrySet().stream().anyMatch(entry -> {
