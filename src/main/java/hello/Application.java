@@ -268,7 +268,7 @@ public class Application {
   private String moveByTargetDistance(PlayerState me, Arena arena) {
     int frontDistance = targetInFrontDistance(me.direction, me, arena);
     int leftDistance = targetInFrontDistance(findLeftDirection(me.direction), me, arena) + 1;
-    int rightDistance = targetInFrontDistance(findLeftDirection(me.direction), me, arena) + 1;
+    int rightDistance = targetInFrontDistance(findRightDirection(me.direction), me, arena) + 1;
 
     if(frontDistance < leftDistance && frontDistance < rightDistance) return "F";
     if(leftDistance < frontDistance && leftDistance < rightDistance) return "L";
