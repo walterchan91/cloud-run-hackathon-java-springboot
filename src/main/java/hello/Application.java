@@ -62,9 +62,11 @@ public class Application {
       PlayerState me = arenaUpdate.arena.state.remove(arenaUpdate._links.self.href);
 
       if(canScore(me, arenaUpdate)) {
+        System.out.println("T");
           return "T";
       } else {
           String m = makeMoveAction(me, arenaUpdate);
+          System.out.println(m);
           return m;
       }
   }
@@ -75,7 +77,7 @@ public class Application {
           if(me.y > dims.get(1)/2) return "R";
           else return "L";
       }
-      if("E".equalsIgnoreCase(me.direction) && me.x >= dims.get(0)) {
+      if("E".equalsIgnoreCase(me.direction) && me.x >= dims.get(0) -1 ) {
           if(me.y > dims.get(1)/2) return "L";
           else return "R";
       };
@@ -83,7 +85,7 @@ public class Application {
           if(me.x > dims.get(0)/2) return "L";
           else return "R";
       }
-      if("S".equalsIgnoreCase(me.direction) && me.y >= dims.get(1)) {
+      if("S".equalsIgnoreCase(me.direction) && me.y >= dims.get(1) - 1) {
           if(me.x > dims.get(0)/2) return "R";
           else return "L";
       }
